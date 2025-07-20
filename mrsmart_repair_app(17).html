@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mr.Smart Phone Repair</title>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <style>
+    * { box-sizing: border-box; font-family: sans-serif; }
+    body { margin: 0; padding: 0; background: #f8f9fa; }
+    header { background: #0d6efd; color: white; padding: 1rem; text-align: center; }
+    nav { display: flex; justify-content: space-around; background: #e9ecef; border-bottom: 1px solid #ccc; }
+    nav button {
+  flex: 1;
+  padding: 1em;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  filter: brightness(1);
+}
+    nav button.active, nav button:hover {
+  background: #004085;
+  color: white;
+  box-shadow: inset 0 -4px 8px rgba(0, 0, 0, 0.4);
+  filter: brightness(0.95);
+  transform: scale(1.08);
+  border: 2px solid #003366;
+}
+    main { padding: 1rem; }
+    section { display: none; }
+    section.active { display: block; }
+    .order-card { background: white; border: 1px solid #ccc; border-radius: 6px; padding: 1rem; margin-bottom: 1rem; }
+    .order-card img { max-width: 100px; margin-top: 0.5em; border-radius: 4px; cursor: zoom-in; }
+    .order-card button { margin: 0.5em 0.5em 0 0; padding: 0.5em 1em; background: #0d6efd; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    #newOrderForm { background: white; padding: 1rem; width: 95%; margin: 1rem auto; border-radius: 6px; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: none; float: none; }
+    label { display: block; margin: 0.5rem 0 0.2rem; }
+    input { width: 100%; padding: 0.5rem; margin-bottom: 0.5rem; border: 1px solid #ccc; border-radius: 4px; }
+    canvas, video { display: block; max-width: 100%; margin: 1rem auto; border: 1px solid #ccc; border-radius: 4px; }
+    .mobile-btn { position: fixed; bottom: 20px; right: 20px; background: #0d6efd; color: white; border: none; border-radius: 50%; width: 60px; height: 60px; font-size: 30px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <header style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #0d6efd; color: white;">
+  <h1 style="margin: 0;">Mr.Smart Phone Repair</h1>
+  <input id="employeeName" required placeholder="Mitarbeitername" style="margin-left: auto; width: 160px; padding: 6px; border: 2px solid #fff; border-radius: 6px; font-size: 12px;" />
+</header>
+  <nav style="background: linear-gradient(to bottom, #e0e0e0, #c0c0c0); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); padding: 0.5rem; border-radius: 0 0 10px 10px;">
+  <button onclick="switchTab('new')" class="active" style="background: linear-gradient(to bottom, #007bff, #0056b3); color: white; border: none; padding: 0.6rem 1.2rem; margin: 0 4px; border-radius: 8px; box-shadow: 0 4px #003f88; font-weight: bold; transition: all 0.2s; cursor: pointer;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Neue Aufträge</button>
+  <button onclick="switchTab('in-progress')" style="background: linear-gradient(to bottom, #6c757d, #495057); color: white; border: none; padding: 0.6rem 1.2rem; margin: 0 4px; border-radius: 8px; box-shadow: 0 4px #343a40; font-weight: bold; transition: all 0.2s; cursor: pointer;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">In Bearbeitung</button>
+  <button onclick="switchTab('done')" style="background: linear-gradient(to bottom, #28a745, #218838); color: white; border: none; padding: 0.6rem 1.2rem; margin: 0 4px; border-radius: 8px; box-shadow: 0 4px #1c7430; font-weight: bold; transition: all 0.2s; cursor: pointer;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Abgeschlossene Aufträge</button>
+</nav>
+  <main>
+    <section id="new" class="active">
+      <div id="newOrderForm">
+<div style="display: flex; justify-content: space-between; align-items: center;">
+  <h2 style="background: linear-gradient(to right, #007bff, #0056b3); color: white; padding: 10px 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); display: inline-block; text-shadow: 1px 1px #000; margin: 0;">📋 Neuer Auftrag</h2>
+</div>
+        
+</div>
+<label style="display: block; font-weight: bold; color: #333;">Kundenname:</label>
+<div style="background: #f0f8ff; border-left: 5px solid #3399ff; padding: 10px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); margin-bottom: 10px;">
+  <input id="customerName" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;" />
+</div>
+        <label style="display: block; font-weight: bold; color: #333;">Telefon:</label>
+<div style="background: #f0f8ff; border-left: 5px solid #3399ff; padding: 10px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); margin-bottom: 10px;">
+  <input id="phoneNumber" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;" />
+</div>
+        <label style="display: block; font-weight: bold; color: #333;">Modell:</label>
+<div style="background: #f9f9f9; border-left: 5px solid #6c757d; padding: 10px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 10px;">
+  <input id="deviceModel" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;" />
+</div>
+        <div style="display: flex; align-items: flex-start; gap: 1rem;">
+          <label style="flex: 1;">Passwort:<input id="devicePin"></label>
+          <div style="text-align: center;">
+            <label style="font-size: 0.85em;">Muster:</label><br>
+            <canvas id="patternCanvas" width="100" height="100" style="border: 2px solid #0d6efd; border-radius: 10px; box-shadow: 0 0 8px rgba(0,0,0,0.15); background-color: #eef4ff; cursor: pointer; display: block; margin: 0 auto;"></canvas>
+            <input id="patternInput" type="text" readonly style="width: 100%; font-size: 10px; text-align: center; margin-top: 4px; background: #f8f9fa; border: 1px solid #ccc; border-radius: 4px; padding: 4px;" />
+            <button onclick="resetPattern()" style="font-size: 10px; margin-top: 4px;">Zurücksetzen</button>
+          </div>
+        </div>
+        <label style="display: block; font-weight: bold; color: #333;">Sim-PIN:</label>
+<div style="background: #f9f9f9; border-left: 5px solid #6c757d; padding: 10px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 10px;">
+  <input id="simPin" style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;" />
+</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0;">
+  <button onclick="addProblemText('Display')" style="background: linear-gradient(to bottom, #007bff, #0056b3); color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer;">Display</button>
+  <button onclick="addProblemText('Akku')" style="background: linear-gradient(to bottom, #007bff, #0056b3); color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer;">Akku</button>
+  <button onclick="addProblemText('Ladebuchse')" style="background: linear-gradient(to bottom, #007bff, #0056b3); color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer;">Ladebuchse</button>
+  <button onclick="addProblemText('Backcover')" style="background: linear-gradient(to bottom, #007bff, #0056b3); color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer;">Backcover</button>
+  <button onclick="addProblemText('Hörmuschel')" style="background: linear-gradient(to bottom, #007bff, #0056b3); color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer;">Hörmuschel</button>
+  <button onclick="addProblemText('Lautsprecher')" style="background: linear-gradient(to bottom, #007bff, #0056b3); color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer;">Lautsprecher</button>
+  <button onclick="addProblemText('Face ID')" style="background: linear-gradient(to bottom, #007bff, #0056b3); color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer;">Face ID</button>
+  <button onclick="addProblemText('Kamera')" style="background: linear-gradient(to bottom, #007bff, #0056b3); color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer;">Kamera</button>
+  <button onclick="addProblemText('Kameraglas')" style="background: linear-gradient(to bottom, #007bff, #0056b3); color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer;">Kameraglas</button>
+</div>
+<div style="background: #fefefe; border-left: 5px solid #dc3545; padding: 10px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 10px;">
+  <input id="problemDesc" placeholder="Fehler hier beschreiben..." style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;" />
+</div>
+        <div style="display: flex; gap: 10px;">
+  <div style="flex: 1;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+  
+  <button onclick="addProductText('Hülle')" style="background: linear-gradient(to bottom, #007bff, #0056b3); color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer;">Hülle</button>
+  <button onclick="addProductText('Panzerglass')" style="background: linear-gradient(to bottom, #007bff, #0056b3); color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer;">Panzerglass</button>
+  
+  
+  <button onclick="addProductText('Ladegerät')" style="background: linear-gradient(to bottom, #007bff, #0056b3); color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer;">Ladegerät</button>
+  <button onclick="addProductText('Kabel')" style="background: linear-gradient(to bottom, #007bff, #0056b3); color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer;">Kabel</button>
+</div>
+<input id="productDesc" placeholder="Zubehör hier beschreiben...">
+  </div>
+  <div style="flex: 1;">
+    <label>Produktpreis (€):<input id="productPrice" type="number" step="0.01"></label>
+  </div>
+</div>
+<label>Reparaturpreis (€):<input id="price" type="number" step="0.01"></label>
+                <label>Abholdatum:<input id="pickupDate" type="datetime-local" value=""></label>
+        <div style="display: flex; justify-content: flex-start; align-items: center; gap: 10px;">
+  <label style="flex: 1;">Vorderseite fotografieren:</label>
+  <button onclick="takePhoto('front')" style="border-radius: 50%; width: 40px; height: 40px; background: #0d6efd; color: white; border: none; font-size: 16px; cursor: pointer;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">📸</button>
+</div>
+<video id="videoFront" autoplay style="width: 200px; height: 120px; margin-top: 10px;"></video>
+        <img id="previewFront" style="display: none; max-width: 100px; margin-top: 10px; border-radius: 4px;" />
+        <div style="display: flex; justify-content: flex-start; align-items: center; gap: 10px;">
+  <label style="flex: 1;">Rückseite fotografieren:</label>
+  <button onclick="takePhoto('back')" style="border-radius: 50%; width: 40px; height: 40px; background: #0d6efd; color: white; border: none; font-size: 16px; cursor: pointer;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">📸</button>
+</div>
+<video id="videoBack" autoplay style="width: 200px; height: 120px; margin-top: 10px;"></video>
+        <img id="previewBack" style="display: none; max-width: 100px; margin-top: 10px; border-radius: 4px;" />
+        <button onclick="submitOrder()" style="background: linear-gradient(to bottom, #28a745, #218838); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; box-shadow: 0 4px #1c7430; font-weight: bold; transition: all 0.2s; cursor: pointer; cursor: pointer;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Auftrag speichern</button>
+        <button onclick="closeForm()" style="background: linear-gradient(to bottom, #dc3545, #c82333); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; box-shadow: 0 4px #bd2130; font-weight: bold; transition: all 0.2s; cursor: pointer;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">Abbrechen</button>
+      </div>
+    </section>
+    <section id="in-progress">
+      <input id="searchInProgress" oninput="renderOrders()" placeholder="Suchen..." style="width: 100%; padding: 0.5rem; margin-bottom: 1rem;" />
+    </section>
+    <section id="done">
+      <input id="searchDone" oninput="renderOrders()" placeholder="Suchen..." style="width: 100%; padding: 0.5rem; margin-bottom: 1rem;" />
+    </section>
+  </main>
+  
+  <div id="labelArea" style="display:none;"><div id="labelContent"></div></div>
+
+  <script>
+    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    let frontImage = "";
+    let backImage = "";
+
+    const canvas = document.getElementById('patternCanvas');
+    const ctx = canvas.getContext('2d');
+    const radius = 8;
+    const points = [];
+    const selected = [];
+    const patternInput = document.getElementById('patternInput');
+
+    for (let row = 0; row < 3; row++) {
+      for (let col = 0; col < 3; col++) {
+        points.push({ x: 20 + col * 30, y: 20 + row * 30, id: row * 3 + col + 1, selected: false });
+      }
+    }
+
+    canvas.addEventListener('mousedown', e => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      for (const p of points) {
+        const dist = Math.hypot(p.x - mx, p.y - my);
+        if (dist < radius && !p.selected) {
+          p.selected = true;
+          selected.push(p);
+          patternInput.value = selected.map(p => p.id).join('-');
+          drawPattern();
+          break;
+        }
+      }
+    });
+
+    function drawPattern() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#0d6efd';
+      ctx.fillStyle = '#0d6efd';
+      if (selected.length > 1) {
+        ctx.beginPath();
+        ctx.moveTo(selected[0].x, selected[0].y);
+        for (let i = 1; i < selected.length; i++) {
+          ctx.lineTo(selected[i].x, selected[i].y);
+        }
+        ctx.stroke();
+      }
+      for (const p of points) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+        ctx.stroke();
+        if (p.selected) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+
+    function resetPattern() {
+      for (const p of points) p.selected = false;
+      selected.length = 0;
+      patternInput.value = '';
+      drawPattern();
+    }
+
+    drawPattern();
+
+    function submitOrder() {
+      if (!employeeName.value.trim()) return alert('Bitte den Mitarbeiternamen eingeben.');
+
+      const order = {
+        id: Date.now(),
+        name: customerName.value,
+        phone: phoneNumber.value,
+        model: deviceModel.value,
+        pin: devicePin.value,
+        simPin: simPin.value,
+        problem: problemDesc.value,
+        product: productDesc.value,
+        productPrice: parseFloat(document.getElementById('productPrice').value || '0'),
+        price: price.value,
+        pickupDate: pickupDate.value,
+        imageFront: frontImage,
+        imageBack: backImage,
+        pattern: patternInput.value,
+        createdAt: new Date().toLocaleString(),
+        completedAt: null,
+        status: 'in-progress',
+        employee: employeeName.value
+      };
+      orders.push(order);
+      localStorage.setItem('orders', JSON.stringify(orders));
+      renderOrders();
+      closeForm();
+      switchTab('in-progress');
+    }
+
+    function takePhoto(position) {
+      const video = position === 'front' ? document.getElementById('videoFront') : document.getElementById('videoBack');
+      const preview = position === 'front' ? document.getElementById('previewFront') : document.getElementById('previewBack');
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0);
+      const dataUrl = canvas.toDataURL();
+      preview.src = dataUrl;
+      preview.style.display = 'block';
+      if (position === 'front') frontImage = dataUrl;
+      else backImage = dataUrl;
+    }
+
+    function renderOrders() {
+      const inProgressSection = document.getElementById('in-progress');
+      const doneSection = document.getElementById('done');
+      const searchInProgress = document.getElementById('searchInProgress')?.value?.toLowerCase() || '';
+      const searchDone = document.getElementById('searchDone')?.value?.toLowerCase() || '';
+      inProgressSection.querySelectorAll('.order-card').forEach(card => card.remove());
+      doneSection.querySelectorAll('.order-card').forEach(card => card.remove());
+      orders.forEach(order => {
+        const searchableText = `${order.id} ${order.name} ${order.phone} ${order.model} ${order.problem} ${order.product} ${order.productPrice}`.toLowerCase();
+        const div = document.createElement('div');
+        div.className = 'order-card';
+        let html = `<strong>ID:</strong> ${order.id}<br>`;
+        if (order.name) html += `<strong>Name:</strong> ${order.name}<br>`;
+        if (order.phone) html += `<strong>Telefon:</strong> ${order.phone}<br>`;
+        if (order.model) html += `<strong>Modell:</strong> ${order.model}<br>`;
+        if (order.pin) html += `<strong>Passwort:</strong> ${order.pin}<br>`;
+        if (order.simPin) html += `<strong>Sim-PIN:</strong> ${order.simPin}<br>`;
+        if (order.pattern) html += `<strong>Muster:</strong> ${order.pattern}<br>`;
+        if (order.problem) html += `<strong>Problem:</strong> ${order.problem}<br>`;
+        if (order.product) html += `<strong>Produkte:</strong> ${order.product}<br>`;
+        if (!isNaN(order.productPrice)) html += `<strong>Produktpreis:</strong> ${order.productPrice.toFixed(2).replace('.', ',')} €<br>`;
+        if (!isNaN(parseFloat(order.price))) html += `<strong>Preis:</strong> ${parseFloat(order.price).toFixed(2).replace('.', ',')} €<br>`;
+        if (order.pickupDate) html += `<strong>Abholdatum:</strong> ${order.pickupDate}<br>`;
+        if (order.employee) html += `<strong>Mitarbeiter:</strong> ${order.employee}<br>`;
+        html += `<strong>Aufgenommen am:</strong> ${order.createdAt}<br>`;
+        if (order.completedAt) html += `<strong>Abgeholt am:</strong> ${order.completedAt}<br>`;
+        div.innerHTML = html;
+        if (order.imageFront) div.innerHTML += `<img src="${order.imageFront}" title="Vorderseite">`;
+        if (order.imageBack) div.innerHTML += `<img src="${order.imageBack}" title="Rückseite">`;
+        if (order.status === 'in-progress' && searchableText.includes(searchInProgress)) {
+          const printBtn = document.createElement('button');
+          printBtn.textContent = 'Etikett drucken';
+          printBtn.onclick = () => printLabel(order);
+          div.appendChild(printBtn);
+          const editBtn = document.createElement('button');
+          editBtn.textContent = 'Bearbeiten';
+          editBtn.onclick = () => editOrder(order.id);
+          div.appendChild(editBtn);
+          const pdfBtn = document.createElement('button');
+pdfBtn.textContent = 'PDF drucken';
+pdfBtn.onclick = () => printPDF(order);
+div.appendChild(pdfBtn);
+
+const completeBtn = document.createElement('button');
+completeBtn.textContent = 'Abholung';
+          completeBtn.onclick = () => completeOrder(order.id);
+          div.appendChild(completeBtn);
+          inProgressSection.appendChild(div);
+        } else if (order.status === 'done' && searchableText.includes(searchDone)) {
+          const restoreBtn = document.createElement('button');
+          restoreBtn.innerHTML = '⤴️';
+          restoreBtn.title = 'Zurück in Bearbeitung';
+          restoreBtn.style.cssText = 'position: absolute; top: 10px; right: 10px; background: #0d6efd; color: white; border: none; border-radius: 50%; width: 32px; height: 32px; font-size: 18px; cursor: pointer;';
+          restoreBtn.onclick = () => {
+            order.status = 'in-progress';
+            order.completedAt = null;
+            localStorage.setItem('orders', JSON.stringify(orders));
+            renderOrders();
+          };
+          div.style.position = 'relative';
+          div.appendChild(restoreBtn);
+
+          const deleteBtn = document.createElement('button');
+          doneSection.appendChild(div);
+        }
+      });
+    }
+
+    function completeOrder(id) {
+      const index = orders.findIndex(o => o.id === id);
+      if (index !== -1) {
+        orders[index].status = 'done';
+        orders[index].completedAt = new Date().toLocaleString();
+        localStorage.setItem('orders', JSON.stringify(orders));
+        renderOrders();
+      }
+    }
+
+    function switchTab(id) {
+  if (id === 'new') {
+    document.getElementById('newOrderForm').style.display = 'block';
+    navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+      document.getElementById('videoFront').srcObject = stream;
+      document.getElementById('videoBack').srcObject = stream;
+    });
+  } else {
+    document.getElementById('newOrderForm').style.display = 'none';
+  }
+      document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('main section').forEach(sec => sec.classList.remove('active'));
+      document.querySelector(`nav button[onclick*='${id}']`).classList.add('active');
+      document.getElementById(id).classList.add('active');
+    }
+
+    function startNewOrder() {
+      switchTab('new');
+      document.getElementById('newOrderForm').style.display = 'block';
+      navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+        document.getElementById('videoFront').srcObject = stream;
+        document.getElementById('videoBack').srcObject = stream;
+      });
+    }
+
+    function editOrder(id) {
+  const order = orders.find(o => o.id === id);
+  if (!order) return alert('Auftrag nicht gefunden');
+
+  customerName.value = order.name;
+  phoneNumber.value = order.phone;
+  deviceModel.value = order.model;
+  devicePin.value = order.pin;
+  simPin.value = order.simPin;
+  problemDesc.value = order.problem;
+  productDesc.value = order.product;
+  price.value = order.price;
+  pickupDate.value = order.pickupDate;
+  patternInput.value = order.pattern;
+  frontImage = order.imageFront;
+  backImage = order.imageBack;
+
+  if (order.imageFront) {
+    previewFront.src = order.imageFront;
+    previewFront.style.display = 'block';
+  }
+  if (order.imageBack) {
+    previewBack.src = order.imageBack;
+    previewBack.style.display = 'block';
+  }
+
+  orders = orders.filter(o => o.id !== id);
+  localStorage.setItem('orders', JSON.stringify(orders));
+  renderOrders();
+  switchTab('new');
+  document.getElementById('newOrderForm').style.display = 'block';
+}
+
+function closeForm() {
+      document.getElementById('newOrderForm').style.display = 'none';
+    }
+
+    function printLabel(order) {
+  const uniqueId = 'barcode-' + order.id;
+  const labelContent = document.getElementById('labelContent');
+  let html = `<div style="font-size: 11px; font-family: Arial; width: 80mm;"><strong>AUFTRAG:</strong> ${order.id}<br>`;
+      if (order.name) html += `${order.name}<br>`;
+      if (order.phone) html += `${order.phone}<br>`;
+      if (order.model) html += `<strong>Modell:</strong> ${order.model}<br>`;
+      if (order.pin) html += `<strong>PIN:</strong> ${order.pin}<br>`;
+      if (order.simPin) html += ` | <strong>SIM:</strong> ${order.simPin}<br>`;
+      if (order.pattern) html += `<strong>Muster:</strong> ${order.pattern}<br>`;
+      if (order.product) html += `<strong>Produkte:</strong> ${order.product}<br>`;
+      if (!isNaN(parseFloat(order.price))) html += `<strong>Preis:</strong> ${parseFloat(order.price).toFixed(2).replace('.', ',')} €<br>`;
+      if (order.pickupDate) html += `<strong>Abholdatum:</strong> ${order.pickupDate}<br>`;
+      html += `<svg id="barcode-${order.id}"></svg></div>`;
+      labelContent.innerHTML = html;
+  JsBarcode("#" + uniqueId, String(order.id), {
+    format: "CODE128",
+    lineColor: "#000",
+    width: 1.5,
+    height: 30,
+    displayValue: false
+  });
+  const labelArea = document.getElementById('labelArea');
+  labelArea.style.display = 'block';
+  const win = window.open('', '', 'width=400,height=600');
+  win.document.write('<html><head><title>Etikett</title></head><body>' + labelArea.innerHTML + '</body></html>');
+  win.document.close();
+  win.focus();
+  win.print();
+  win.close();
+  labelArea.style.display = 'none';
+}
+
+function printPDF(order) {
+  const pdfWindow = window.open('', '', 'width=800,height=1100');
+  const createdDate = order.createdAt;
+  const pickupDate = new Date(order.pickupDate).toLocaleString('de-DE');
+  const content = `
+    <html>
+    <head><title>Auftrag Nr. ${order.id}</title></head>
+    <body style="font-family: Arial; padding: 30px; font-size: 13px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <img src="/mnt/data/mr.jpg" alt="Logo" style="height: 50px;">
+        <div style="text-align: right;">
+          <strong>Mr.Smart Repair</strong><br>
+          Berner Heerweg 173-175/1. OG<br>
+          22159 Hamburg<br>
+          Tel: 04064534414
+        </div>
+      </div>
+      <hr>
+      <div style="margin-top: 20px;">
+        <strong>Auftraggeber:</strong><br>
+        ${order.name}<br>
+        ${order.phone}<br>
+        <br>
+        <strong>Gerät:</strong><br>
+        Modell: ${order.model}<br>
+        IMEI: -<br>
+        Fehlerbeschreibung: ${order.problem}<br>
+        Passwort: ${order.pin}, Sim-PIN: ${order.simPin}, Muster: ${order.pattern}<br>
+      </div>
+      <p><strong>Auftragsschein:</strong><br>Wir sind bemüht Ihren Auftrag so schnell wie möglich zu bearbeiten.<br>Bitte bewahren Sie diesen Auftragsschein zwecks Garantieabwicklung auf.</p>
+
+      <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+        <tr><th style="border-bottom: 1px solid #000; text-align: left;">Beschreibung</th><th style="border-bottom: 1px solid #000; text-align: right;">Preis</th></tr>
+        <tr><td>${order.problem || '-'}</td><td style="text-align: right;">${parseFloat(order.price).toFixed(2).replace('.', ',')} €</td></tr>
+        <tr><td>${order.product || '-'}</td><td style="text-align: right;">${!isNaN(order.productPrice) ? order.productPrice.toFixed(2).replace('.', ',') + ' €' : '0,00 €'}</td></tr>
+        <tr><td><strong>Gesamtsumme</strong></td><td style="text-align: right;"><strong>${(parseFloat(order.price) + (parseFloat(order.productPrice) || 0)).toFixed(2).replace('.', ',')} €</strong></td></tr>
+      </table>
+
+      <p style="margin-top: 30px;"><strong>Aufgenommen am:</strong> ${createdDate}</p>
+
+      <p style="font-size: 12px; margin-top: 20px;">
+        Für Daten und Einstellungen des zu reparierenden Artikels wird keine Haftung übernommen. Bitte sichern Sie Ihre Daten eigenverantwortlich. Reparaturen an Geräten mit Wasserschaden erfolgen auf eigenes Risiko. Garantie nur auf Ersatzteile, nicht auf die Reparaturleistung. Lagerung defekter Geräte max. 8 Wochen. Danach wird das Gerät kostenpflichtig entsorgt. <br><br>
+        Für Daten und Einstellungen des zu reparierenden Artikels, wird keine Haftung übernommen. Bitte sichern Sie Ihre Daten eigenverantwortlich.<br>
+Als Folge der Beschädigung einer Sache, können während einer Reparatur Folgeschäden entstehen.<br>
+Kann der Firma Mr.Smart Repair kein fahrlässiges Verhalten nachgewiesen werden, wird jegliche hieraus resultierende Haftung ausgeschlossen.<br>
+Die im Reparaturauftrag vorgeschlagenen Maßnahmen, stellen eine mögliche Lösung, jedoch keine Garantie auf Erfolg einer Reparatur dar.<br>
+Auf alle Reparaturen und Dienstleistungen erhalten Sie die gesetzlich geregelte Gewährleistung, ausgenommen sind speziell gekennzeichnete Leistungen. (Bei Originalersatzteilen 5 Jahre und bei Nachbauartikel und Akkus 6 Monate.)<br>
+Sollte das zu reparierende Gerät mit einem Passwort geschützt sein, sodass die Techniker keine Prüfung der Funktionen durchführen können, haben Sie keine Garantie auf die erfolgte Reparatur.<br>
+Bei einer eventuellen Reklamation wird eine Bearbeitungspauschale von 35,00 EUR inkl. MwSt. berechnet.<br>
+Entscheiden Sie sich gegen die Durchführung einer Reparatur bzw. ist eine solche nicht durchführbar, wird Ihnen bei der Rückstellung des Gerätes eine Überprüfungspauschale von 35,00 EUR inkl. MwSt. in Rechnung gestellt.<br>
+Das reparierte oder unreparierte Gerät ist spätestens binnen 8 Wochen nach Abgabedatum im Abgabeort/Store abzuholen.<br>
+<strong>HINWEIS:</strong> Achten Sie bitte bei Ihrem Display auf den nötigen Schutz (Panzerglas), da bei Kratzern die Garantie erlischt.<br>
+Bei Nichtabholung geht das Endgerät in das Eigentum der Firma Mr.Smart Repair über, dabei bleibt die Überprüfungspauschale von 35,00 EUR inkl. MwSt. unberührt und wird in Rechnung gestellt.<br><br>
+Mit meiner Unterschrift bestätige ich den Auftrag und stimme den AGB der Firma Mr.Smart Repair zu.
+      </p>
+
+      <p style="margin-top: 40px;"><strong>Datum, Unterschrift:</strong> ____________________________________________</p>
+
+      
+    </body></html>`;
+
+  pdfWindow.document.write(content);
+  pdfWindow.document.close();
+  pdfWindow.focus();
+  pdfWindow.print();
+  pdfWindow.close();
+}
+
+function addProblemText(text) {
+  const input = document.getElementById('problemDesc');
+  if (!input.value.includes(text)) {
+    input.value += (input.value ? ', ' : '') + text;
+  }
+}
+
+function addProductText(text) {
+  const input = document.getElementById('productDesc');
+  if (!input.value.includes(text)) {
+    input.value += (input.value ? ', ' : '') + text;
+  }
+}
+
+window.onload = () => {
+  switchTab('new');
+  const pickupInput = document.getElementById('pickupDate');
+  if (pickupInput && !pickupInput.value) {
+    const now = new Date();
+    const localISOTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0,16);
+    pickupInput.value = localISOTime;
+  }
+  renderOrders();
+};
+  </script>
+</body>
+</html>
